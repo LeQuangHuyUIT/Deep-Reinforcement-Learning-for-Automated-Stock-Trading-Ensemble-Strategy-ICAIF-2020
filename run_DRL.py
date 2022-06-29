@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import time
 from stable_baselines.common.vec_env import DummyVecEnv
-
 # preprocessor
 from preprocessing.preprocessors import *
 # config
@@ -12,6 +11,7 @@ from config.config import *
 from model.models import *
 import os
 import warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 warnings.filterwarnings('ignore')
 
 def run_model() -> None:

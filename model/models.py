@@ -29,7 +29,7 @@ def train_A2C(env_train, model_name, timesteps=25000):
     """A2C model"""
 
     start = time.time()
-    model = A2C('MlpLnLstmPolicy', env_train, verbose=0)
+    model = A2C('MlpLstmPolicy', env_train, verbose=0)
     model.learn(total_timesteps=timesteps)
     end = time.time()
 
@@ -57,7 +57,7 @@ def train_DDPG(env_train, model_name, timesteps=10000):
     action_noise = OrnsteinUhlenbeckActionNoise(mean=np.zeros(n_actions), sigma=float(0.5) * np.ones(n_actions))
 
     start = time.time()
-    model = DDPG('MlpLnLstmPolicy', env_train, param_noise=param_noise, action_noise=action_noise)
+    model = DDPG('MlpLstmPolicy', env_train, param_noise=param_noise, action_noise=action_noise)
     model.learn(total_timesteps=timesteps)
     end = time.time()
 
@@ -69,7 +69,7 @@ def train_PPO(env_train, model_name, timesteps=50000):
     """PPO model"""
 
     start = time.time()
-    model = PPO2('MlpLnLstmPolicy', env_train, ent_coef = 0.005, nminibatches = 8)
+    model = PPO2('MlpLstmPolicy', env_train, ent_coef = 0.005, nminibatches = 8)
     #model = PPO2('MlpPolicy', env_train, ent_coef = 0.005)
 
     model.learn(total_timesteps=timesteps)
