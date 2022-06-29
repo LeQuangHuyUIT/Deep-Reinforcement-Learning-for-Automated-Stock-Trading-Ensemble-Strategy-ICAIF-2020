@@ -11,6 +11,8 @@ from config.config import *
 # model
 from model.models import *
 import os
+import warnings
+warnings.filterwarnings('ignore')
 
 def run_model() -> None:
     """Train the model."""
