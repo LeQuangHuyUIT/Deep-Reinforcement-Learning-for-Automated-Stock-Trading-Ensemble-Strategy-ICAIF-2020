@@ -53,6 +53,7 @@ class StockEnvValidation(gym.Env):
         self.turbulence = 0
         self.cost = 0
         self.trades = 0
+        self.best_networth = 0
         # memorize all the total balance change
         self.asset_memory = [INITIAL_ACCOUNT_BALANCE]
         self.rewards_memory = []

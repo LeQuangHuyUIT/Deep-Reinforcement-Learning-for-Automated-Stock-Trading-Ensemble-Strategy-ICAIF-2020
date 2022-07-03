@@ -52,6 +52,7 @@ class StockEnvTrain(gym.Env):
         self.asset_memory = [INITIAL_ACCOUNT_BALANCE]
         self.rewards_memory = []
         self.trades = 0
+        self.best_networth = 0
         #self.reset()
         self._seed()
 
