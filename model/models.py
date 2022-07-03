@@ -29,7 +29,7 @@ def train_A2C(env_train, model_name, timesteps=25000):
     """A2C model"""
 
     start = time.time()
-    model = A2C('MlpPolicy', env_train, verbose=0, n_steps=128, momentum=0.5)
+    model = A2C('MlpPolicy', env_train, verbose=0, n_steps=128, momentum=0.5, learning_rate= 0.0000025)
     model.learn(total_timesteps=timesteps)
     end = time.time()
 
@@ -69,7 +69,7 @@ def train_PPO(env_train, model_name, timesteps=50000):
     """PPO model"""
 
     start = time.time()
-    model = PPO2('MlpPolicy', env_train, ent_coef = 0.005, nminibatches = 8)
+    model = PPO2('MlpPolicy', env_train, ent_coef = 0.005, nminibatches = 8, learning_rate= 0.0000005)
     #model = PPO2('MlpPolicy', env_train, ent_coef = 0.005)
 
     model.learn(total_timesteps=timesteps)
