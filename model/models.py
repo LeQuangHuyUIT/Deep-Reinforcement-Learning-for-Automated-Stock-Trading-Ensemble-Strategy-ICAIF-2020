@@ -139,9 +139,9 @@ def DRL_validation(model, test_data, test_env, test_obs) -> None:
         test_obs, rewards, dones, info = test_env.step(action)
 
 
-def get_validation_sharpe(iteration):
+def get_validation_sharpe(iteration, model_name):
     ###Calculate Sharpe ratio based on validation results###
-    df_total_value = pd.read_csv('results/account_value_validation_{}.csv'.format(iteration), index_col=0)
+    df_total_value = pd.read_csv('results/account_value_validation_{}_{}.csv'.format(iteration, model_name), index_col=0)
     df_total_value.columns = ['account_value_train']
     df_total_value['daily_return'] = df_total_value.pct_change(1)
     sharpe = (4 ** 0.5) * df_total_value['daily_return'].mean() / \
@@ -234,7 +234,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
                                                           model_name="A2C")])
         obs_val = env_val.reset()
         DRL_validation(model=model_a2c, test_data=validation, test_env=env_val, test_obs=obs_val)
-        sharpe_a2c = get_validation_sharpe(i)
+        sharpe_a2c = get_validation_sharpe(i, "A2C")
         print("A2C Sharpe Ratio: ", sharpe_a2c)
 
 
@@ -248,7 +248,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
                                                           model_name="PPO")])
         obs_val = env_val.reset()
         DRL_validation(model=model_ppo, test_data=validation, test_env=env_val, test_obs=obs_val)
-        sharpe_ppo = get_validation_sharpe(i)
+        sharpe_ppo = get_validation_sharpe(i, "PPO")
         print("PPO Sharpe Ratio: ", sharpe_ppo)
 
 
@@ -263,7 +263,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
                                                           model_name="DDPG")])
         obs_val = env_val.reset()
         DRL_validation(model=model_ddpg, test_data=validation, test_env=env_val, test_obs=obs_val)
-        sharpe_ddpg = get_validation_sharpe(i)
+        sharpe_ddpg = get_validation_sharpe(i, "DDPG")
         print("DDPG Sharpe Ratio: ", sharpe_ddpg)
 
 
