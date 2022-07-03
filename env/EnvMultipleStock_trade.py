@@ -56,9 +56,11 @@ class StockEnvTrade(gym.Env):
         self.turbulence = 0
         self.cost = 0
         self.trades = 0
+        self.best_networth = 0
         # memorize all the total balance change
         self.asset_memory = [INITIAL_ACCOUNT_BALANCE]
         self.rewards_memory = []
+        self.cut_loss_threshold = 0.8
         #self.reset()
         self._seed()
         self.model_name=model_name        
@@ -111,7 +113,11 @@ class StockEnvTrade(gym.Env):
         else:
             # if turbulence goes over threshold, just stop buying
             pass
-        
+
+    def decide_cut_loss(self, total_asset):
+        return sum(np.array(self.state[(STOCK_DIM+1):(STOCK_DIM*2+1)]) ) > 0 and \
+            total_asset < self.cut_loss_threshold * self.best_networth
+    
     def step(self, actions):
         # print(self.day)
         self.terminal = self.day >= len(self.df.index.unique())-1
@@ -152,13 +158,15 @@ class StockEnvTrade(gym.Env):
 
             actions = actions * HMAX_NORMALIZE
             #actions = (actions.astype(int))
-            if self.turbulence>=self.turbulence_threshold:
-                actions=np.array([-HMAX_NORMALIZE]*STOCK_DIM)
+            
                 
             begin_total_asset = self.state[0]+ \
             sum(np.array(self.state[1:(STOCK_DIM+1)])*np.array(self.state[(STOCK_DIM+1):(STOCK_DIM*2+1)]))
             #print("begin_total_asset:{}".format(begin_total_asset))
             
+            if self.turbulence>=self.turbulence_threshold or self.decide_cut_loss(begin_total_asset):
+                actions=np.array([-HMAX_NORMALIZE]*STOCK_DIM)
+
             argsort_actions = np.argsort(actions)
             
             sell_index = argsort_actions[:np.where(actions < 0)[0].shape[0]]
@@ -191,6 +199,8 @@ class StockEnvTrade(gym.Env):
             self.asset_memory.append(end_total_asset)
             #print("end_total_asset:{}".format(end_total_asset))
             
+            self.best_networth = max(self.best_networth, end_total_asset)
+
             self.reward = end_total_asset - begin_total_asset            
             # print("step_reward:{}".format(self.reward))
             self.rewards_memory.append(self.reward)
