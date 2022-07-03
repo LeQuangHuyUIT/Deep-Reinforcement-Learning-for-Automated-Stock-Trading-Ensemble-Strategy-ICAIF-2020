@@ -26,7 +26,7 @@ class StockEnvValidation(gym.Env):
     """A stock trading environment for OpenAI gym"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, df, day = 0, turbulence_threshold=140, iteration=''):
+    def __init__(self, df, day = 0, turbulence_threshold=140, iteration='', model_name=""):
         #super(StockEnv, self).__init__()
         #money = 10 , scope = 1
         self.day = day
@@ -40,6 +40,7 @@ class StockEnvValidation(gym.Env):
         self.data = self.df.loc[self.day,:]
         self.terminal = False     
         self.turbulence_threshold = turbulence_threshold
+        self.model_name = model_name
         # initalize state
         self.state = [INITIAL_ACCOUNT_BALANCE] + \
                       self.data.adjcp.values.tolist() + \
@@ -54,6 +55,7 @@ class StockEnvValidation(gym.Env):
         self.cost = 0
         self.trades = 0
         self.best_networth = 0
+        self.cut_loss_threshold = 0.8
         # memorize all the total balance change
         self.asset_memory = [INITIAL_ACCOUNT_BALANCE]
         self.rewards_memory = []
@@ -121,10 +123,10 @@ class StockEnvValidation(gym.Env):
 
         if self.terminal:
             plt.plot(self.asset_memory,'r')
-            plt.savefig('results/account_value_validation_{}.png'.format(self.iteration))
+            plt.savefig('results/account_value_validation_{}_{}.png'.format(self.iteration, self.model_name))
             plt.close()
             df_total_value = pd.DataFrame(self.asset_memory)
-            df_total_value.to_csv('results/account_value_validation_{}.csv'.format(self.iteration))
+            df_total_value.to_csv('results/account_value_validation_{}_{}.csv'.format(self.iteration, self.model_name))
             end_total_asset = self.state[0]+ \
             sum(np.array(self.state[1:(STOCK_DIM+1)])*np.array(self.state[(STOCK_DIM+1):(STOCK_DIM*2+1)]))
             #print("previous_total_asset:{}".format(self.asset_memory[0]))           
