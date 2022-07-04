@@ -31,7 +31,7 @@ def train_A2C(env_train, model_name, timesteps=25000):
     """A2C model"""
 
     start = time.time()
-    model = A2C('MlpPolicy', env_train, verbose=1, n_steps=10, momentum=0.5, learning_rate= 0.0000025)
+    model = A2C('MlpPolicy', env_train, verbose=0, n_steps=10, momentum=0.5, learning_rate= 0.0000025)
     model.learn(total_timesteps=timesteps)
     end = time.time()
 
@@ -215,7 +215,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         else:
             # if the mean of the historical data is less than the 90% quantile of insample turbulence data
             # then we tune up the turbulence_threshold, meaning we lower the risk
-            turbulence_threshold = np.quantile(insample_turbulence.turbulence.values, .80)
+            turbulence_threshold = np.quantile(insample_turbulence.turbulence.values, 1)
         print("turbulence_threshold: ", turbulence_threshold)
 
         ############## Environment Setup starts ##############
@@ -238,7 +238,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
 
 
         print("======A2C Training========")
-        model_a2c = train_A2C(env_train, model_name="A2C_100k_dow_{}".format(i), timesteps=10000)
+        model_a2c = train_A2C(env_train, model_name="A2C_100k_dow_{}".format(i), timesteps=100000)
         print("======A2C Validation from: ", unique_trade_date[i - rebalance_window - validation_window], "to ",
               unique_trade_date[i - rebalance_window])
         env_val = DummyVecEnv([lambda: StockEnvValidation(validation,
@@ -248,7 +248,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         obs_val = env_val.reset()
         DRL_validation(model=model_a2c, test_data=validation, test_env=env_val, test_obs=obs_val)
         sharpe_a2c = get_validation_sharpe(i, "A2C")
-        print("SAC Sharpe Ratio: ", sharpe_a2c)
+        print("A2C Sharpe Ratio: ", sharpe_a2c)
 
 
         print("======PPO Training========")

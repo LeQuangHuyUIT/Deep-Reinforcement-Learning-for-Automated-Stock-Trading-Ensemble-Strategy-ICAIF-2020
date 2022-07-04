@@ -61,7 +61,7 @@ class StockEnvValidation(gym.Env):
         self.rewards_memory = []
         #self.reset()
         self._seed()
-        
+        self.CutLoss = False
         self.iteration=iteration
 
 
@@ -113,8 +113,9 @@ class StockEnvValidation(gym.Env):
             pass
     
     def decide_cut_loss(self, total_asset):
-        return sum(np.array(self.state[(STOCK_DIM+1):(STOCK_DIM*2+1)]) ) > 0 and \
-            total_asset < self.cut_loss_threshold * self.best_networth
+
+        return self.CutLoss and  sum(np.array(self.state[(STOCK_DIM+1):(STOCK_DIM*2+1)]) ) > 0 and \
+            total_asset < self.cut_loss_threshold * self.best_networth 
 
     def step(self, actions):
         # print(self.day)

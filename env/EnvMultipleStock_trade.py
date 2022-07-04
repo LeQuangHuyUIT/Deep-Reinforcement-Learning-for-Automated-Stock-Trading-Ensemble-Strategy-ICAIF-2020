@@ -63,6 +63,8 @@ class StockEnvTrade(gym.Env):
         self.cut_loss_threshold = 0.8
         #self.reset()
         self._seed()
+        self.CutLoss = False
+
         self.model_name=model_name        
         self.iteration=iteration
 
@@ -115,7 +117,8 @@ class StockEnvTrade(gym.Env):
             pass
 
     def decide_cut_loss(self, total_asset):
-        return sum(np.array(self.state[(STOCK_DIM+1):(STOCK_DIM*2+1)]) ) > 0 and \
+
+        return self.CutLoss and sum(np.array(self.state[(STOCK_DIM+1):(STOCK_DIM*2+1)]) ) > 0 and \
             total_asset < self.cut_loss_threshold * self.best_networth
     
     def step(self, actions):
