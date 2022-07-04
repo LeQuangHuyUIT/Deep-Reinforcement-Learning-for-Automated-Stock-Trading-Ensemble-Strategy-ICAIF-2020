@@ -14,7 +14,7 @@ HMAX_NORMALIZE = 100
 # initial amount of money we have in our account
 INITIAL_ACCOUNT_BALANCE=1000000
 # total number of stocks in our portfolio
-STOCK_DIM = 30
+STOCK_DIM = 17
 # transaction fee: 1/1000 reasonable percentage
 TRANSACTION_FEE_PERCENT = 0.001
 REWARD_SCALING = 1e-4
