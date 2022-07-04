@@ -247,7 +247,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
                                                           model_name="A2C")])
         obs_val = env_val.reset()
         DRL_validation(model=model_a2c, test_data=validation, test_env=env_val, test_obs=obs_val)
-        sharpe_a2c = get_validation_sharpe(i, "SAC")
+        sharpe_a2c = get_validation_sharpe(i, "A2C")
         print("SAC Sharpe Ratio: ", sharpe_a2c)
 
 
