@@ -14,7 +14,7 @@ HMAX_NORMALIZE = 100
 # initial amount of money we have in our account
 INITIAL_ACCOUNT_BALANCE=1000000
 # total number of stocks in our portfolio
-STOCK_DIM = 30
+STOCK_DIM = 17
 # transaction fee: 1/1000 reasonable percentage
 TRANSACTION_FEE_PERCENT = 0.001
 REWARD_SCALING = 1e-4
@@ -31,9 +31,9 @@ class StockEnvTrain(gym.Env):
 
         # action_space normalization and shape is STOCK_DIM
         self.action_space = spaces.Box(low = -1, high = 1,shape = (STOCK_DIM,)) 
-        # Shape = 181: [Current Balance]+[prices 1-30]+[owned shares 1-30] 
-        # +[macd 1-30]+ [rsi 1-30] + [cci 1-30] + [adx 1-30]
-        self.observation_space = spaces.Box(low=0, high=np.inf, shape = (181,))
+        # Shape = 17 * 6 + 1: [Current Balance]+[prices 1-17]+[owned shares 1-17] 
+        # +[macd 1-17]+ [rsi 1-17] + [cci 1-17] + [adx 1-17]
+        self.observation_space = spaces.Box(low=0, high=np.inf, shape = (103,))
         # load data from a pandas dataframe
         self.data = self.df.loc[self.day,:]
         self.terminal = False             
