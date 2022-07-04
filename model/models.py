@@ -86,7 +86,7 @@ def train_GAIL(env_train, model_name, timesteps=1000):
     #from stable_baselines.gail import ExportDataset, generate_expert_traj
     start = time.time()
     # generate expert trajectories
-    model = SAC('MLpPolicy', env_train, verbose=1)
+    model = SAC('MlpPolicy', env_train, verbose=1)
     generate_expert_traj(model, 'expert_model_gail', n_timesteps=100, n_episodes=10)
 
     # Load dataset
@@ -97,9 +97,20 @@ def train_GAIL(env_train, model_name, timesteps=1000):
     end = time.time()
 
     model.save(f"{config.TRAINED_MODEL_DIR}/{model_name}")
-    print('Training time (PPO): ', (end - start) / 60, ' minutes')
+    print('Training time (GAIL): ', (end - start) / 60, ' minutes')
     return model
 
+def train_SAC(env_train, model_name, time_steps=40000):
+    model = SAC(MlpPolicy, env_train, verbose=1)
+    n_actions = env_train.action_space.shape[-1]
+    # param_noise = None
+    action_noise = OrnsteinUhlenbeckActionNoise(mean=np.zeros(n_actions), sigma=float(0.5) * np.ones(n_actions))
+    start = time.time()
+    model.learn(total_timesteps=time_steps, log_interval=10, action_noise= action_noise)
+    end = time.time()
+    model.save(f"{config.TRAINED_MODEL_DIR}/{model_name}")
+    print('Training time (SAC): ', (end - start) / 60, ' minutes')
+    return model
 
 def DRL_prediction(df,
                    model,
@@ -226,18 +237,18 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         # print("==============Model Training===========")
 
 
-        print("======A2C Training========")
-        model_a2c = train_GAIL(env_train, model_name="A2C_30k_dow_{}".format(i), timesteps=100000)
-        print("======A2C Validation from: ", unique_trade_date[i - rebalance_window - validation_window], "to ",
+        print("======SAC Training========")
+        model_a2c = train_SAC(env_train, model_name="SAC_100k_dow_{}".format(i), timesteps=100000)
+        print("======SAC Validation from: ", unique_trade_date[i - rebalance_window - validation_window], "to ",
               unique_trade_date[i - rebalance_window])
         env_val = DummyVecEnv([lambda: StockEnvValidation(validation,
                                                           turbulence_threshold=turbulence_threshold,
                                                           iteration=i,
-                                                          model_name="A2C")])
+                                                          model_name="SAC")])
         obs_val = env_val.reset()
         DRL_validation(model=model_a2c, test_data=validation, test_env=env_val, test_obs=obs_val)
-        sharpe_a2c = get_validation_sharpe(i, "A2C")
-        print("A2C Sharpe Ratio: ", sharpe_a2c)
+        sharpe_a2c = get_validation_sharpe(i, "SAC")
+        print("SAC Sharpe Ratio: ", sharpe_a2c)
 
 
         print("======PPO Training========")
