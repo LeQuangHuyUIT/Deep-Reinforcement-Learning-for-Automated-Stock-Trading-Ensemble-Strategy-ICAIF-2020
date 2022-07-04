@@ -56,8 +56,10 @@ class StockEnvTrade(gym.Env):
         self.turbulence = 0
         self.cost = 0
         self.trades = 0
-        self.best_networth = self.previous_state[0]+ \
-            sum(np.array(self.previous_state[1:(STOCK_DIM+1)])*np.array(self.previous_state[(STOCK_DIM+1):(STOCK_DIM*2+1)]))
+        self.best_networth = INITIAL_ACCOUNT_BALANCE
+        if len(previous_state) > 0:
+            self.best_networth = self.previous_state[0]+ \
+                sum(np.array(self.previous_state[1:(STOCK_DIM+1)])*np.array(self.previous_state[(STOCK_DIM+1):(STOCK_DIM*2+1)]))
         # memorize all the total balance change
         self.asset_memory = [INITIAL_ACCOUNT_BALANCE]
         self.rewards_memory = []
