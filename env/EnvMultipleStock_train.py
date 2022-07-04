@@ -23,7 +23,7 @@ class StockEnvTrain(gym.Env):
     """A stock trading environment for OpenAI gym"""
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, df,day = 0):
+    def __init__(self, df,day = 0, turbulence_threshold=140):
         #super(StockEnv, self).__init__()
         #money = 10 , scope = 1
         self.day = day
@@ -37,6 +37,8 @@ class StockEnvTrain(gym.Env):
         # load data from a pandas dataframe
         self.data = self.df.loc[self.day,:]
         self.terminal = False             
+        self.turbulence_threshold = turbulence_threshold
+
         # initalize state
         self.state = [INITIAL_ACCOUNT_BALANCE] + \
                       self.data.adjcp.values.tolist() + \
@@ -47,30 +49,50 @@ class StockEnvTrain(gym.Env):
                       self.data.adx.values.tolist()
         # initialize reward
         self.reward = 0
+        self.turbulence = 0
+
         self.cost = 0
         # memorize all the total balance change
         self.asset_memory = [INITIAL_ACCOUNT_BALANCE]
         self.rewards_memory = []
         self.trades = 0
         self.best_networth = 0
+        self.cut_loss_threshold = 0.8
         #self.reset()
         self._seed()
 
 
+    def decide_cut_loss(self, total_asset):
+        return sum(np.array(self.state[(STOCK_DIM+1):(STOCK_DIM*2+1)]) ) > 0 and \
+            total_asset < self.cut_loss_threshold * self.best_networth
+
     def _sell_stock(self, index, action):
         # perform sell action based on the sign of the action
-        if self.state[index+STOCK_DIM+1] > 0:
-            #update balance
-            self.state[0] += \
-            self.state[index+1]*min(abs(action),self.state[index+STOCK_DIM+1]) * \
-             (1- TRANSACTION_FEE_PERCENT)
+        if self.turbulence < self.turbulence_threshold:
+            if self.state[index+STOCK_DIM+1] > 0:
+                #update balance
+                self.state[0] += \
+                self.state[index+1]*min(abs(action),self.state[index+STOCK_DIM+1]) * \
+                (1- TRANSACTION_FEE_PERCENT)
 
-            self.state[index+STOCK_DIM+1] -= min(abs(action), self.state[index+STOCK_DIM+1])
-            self.cost +=self.state[index+1]*min(abs(action),self.state[index+STOCK_DIM+1]) * \
-             TRANSACTION_FEE_PERCENT
-            self.trades+=1
+                self.state[index+STOCK_DIM+1] -= min(abs(action), self.state[index+STOCK_DIM+1])
+                self.cost +=self.state[index+1]*min(abs(action),self.state[index+STOCK_DIM+1]) * \
+                TRANSACTION_FEE_PERCENT
+                self.trades+=1
+            else:
+                pass
         else:
-            pass
+            # if turbulence goes over threshold, just clear out all positions 
+            if self.state[index+STOCK_DIM+1] > 0:
+                #update balance
+                self.state[0] += self.state[index+1]*self.state[index+STOCK_DIM+1]* \
+                              (1- TRANSACTION_FEE_PERCENT)
+                self.state[index+STOCK_DIM+1] =0
+                self.cost += self.state[index+1]*self.state[index+STOCK_DIM+1]* \
+                              TRANSACTION_FEE_PERCENT
+                self.trades+=1
+            else:
+                pass
 
     
     def _buy_stock(self, index, action):
@@ -131,6 +153,8 @@ class StockEnvTrain(gym.Env):
             sum(np.array(self.state[1:(STOCK_DIM+1)])*np.array(self.state[(STOCK_DIM+1):(STOCK_DIM*2+1)]))
             #print("begin_total_asset:{}".format(begin_total_asset))
             
+            if self.turbulence>=self.turbulence_threshold or self.decide_cut_loss(begin_total_asset):
+                actions=np.array([-HMAX_NORMALIZE]*STOCK_DIM)
             argsort_actions = np.argsort(actions)
             
             sell_index = argsort_actions[:np.where(actions < 0)[0].shape[0]]

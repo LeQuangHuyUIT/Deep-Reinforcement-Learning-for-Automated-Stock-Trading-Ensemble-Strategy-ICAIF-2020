@@ -70,7 +70,7 @@ class StockEnvTrade(gym.Env):
     def _sell_stock(self, index, action):
         # perform sell action based on the sign of the action
         if self.turbulence<self.turbulence_threshold:
-            if self.state[index+STOCK_DIM+1] > 0:
+            if self.state[index+STOCK_DIM+1] > 0 :
                 #update balance
                 self.state[0] += \
                 self.state[index+1]*min(abs(action),self.state[index+STOCK_DIM+1]) * \
