@@ -63,7 +63,7 @@ class StockEnvTrade(gym.Env):
         # memorize all the total balance change
         self.asset_memory = [INITIAL_ACCOUNT_BALANCE]
         self.rewards_memory = []
-        self.cut_loss_threshold = 0.8
+        self.cut_loss_threshold = 0.92
         #self.reset()
         self._seed()
         self.CutLoss = True
