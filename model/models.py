@@ -31,7 +31,7 @@ def train_A2C(env_train, model_name, timesteps=25000):
     """A2C model"""
 
     start = time.time()
-    model = A2C('MlpPolicy', env_train, verbose=0, n_steps=10, momentum=0.5)
+    model = A2C('MlpPolicy', env_train, verbose=0, n_steps=20)
     model.learn(total_timesteps=timesteps)
     end = time.time()
 
