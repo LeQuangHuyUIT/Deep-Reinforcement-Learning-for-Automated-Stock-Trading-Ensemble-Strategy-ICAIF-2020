@@ -56,14 +56,15 @@ class StockEnvTrade(gym.Env):
         self.turbulence = 0
         self.cost = 0
         self.trades = 0
-        self.best_networth = 0
+        self.best_networth = self.previous_state[0]+ \
+            sum(np.array(self.previous_state[1:(STOCK_DIM+1)])*np.array(self.previous_state[(STOCK_DIM+1):(STOCK_DIM*2+1)]))
         # memorize all the total balance change
         self.asset_memory = [INITIAL_ACCOUNT_BALANCE]
         self.rewards_memory = []
         self.cut_loss_threshold = 0.8
         #self.reset()
         self._seed()
-        self.CutLoss = False
+        self.CutLoss = True
 
         self.model_name=model_name        
         self.iteration=iteration
@@ -243,6 +244,7 @@ class StockEnvTrade(gym.Env):
             self.cost = 0
             self.trades = 0
             self.terminal = False 
+            self.best_networth = previous_total_asset
             #self.iteration=iteration
             self.rewards_memory = []
             #initiate state
