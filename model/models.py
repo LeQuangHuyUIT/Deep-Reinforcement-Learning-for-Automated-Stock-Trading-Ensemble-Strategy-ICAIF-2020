@@ -31,7 +31,7 @@ def train_A2C(env_train, model_name, timesteps=25000):
     """A2C model"""
 
     start = time.time()
-    model = A2C('MlpPolicy', env_train, verbose=0, n_steps=20)
+    model = A2C('MlpPolicy', env_train, verbose=0, n_steps=5, learning_rate=0.0005)
     model.learn(total_timesteps=timesteps)
     end = time.time()
 
@@ -59,7 +59,8 @@ def train_DDPG(env_train, model_name, timesteps=10000):
     action_noise = OrnsteinUhlenbeckActionNoise(mean=np.zeros(n_actions), sigma=float(0.5) * np.ones(n_actions))
 
     start = time.time()
-    model = DDPG('MlpPolicy', env_train, param_noise=param_noise, action_noise=action_noise)
+    model = DDPG('MlpPolicy', env_train, param_noise=param_noise, action_noise=action_noise, \
+        batch_size=256,buffer_size= 50000, actor_lr= 0.0005, critic_lr=0.005)
     model.learn(total_timesteps=timesteps)
     end = time.time()
 
@@ -71,7 +72,7 @@ def train_PPO(env_train, model_name, timesteps=50000):
     """PPO model"""
 
     start = time.time()
-    model = PPO2('MlpPolicy', env_train, ent_coef = 0.005, nminibatches = 8)
+    model = PPO2('MlpPolicy', env_train, ent_coef = 0.01, nminibatches = 64, n_steps=2048)
     #model = PPO2('MlpPolicy', env_train, ent_coef = 0.005)
 
     model.learn(total_timesteps=timesteps)
@@ -198,6 +199,11 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         end_date_index = df.index[df["datadate"] == unique_trade_date[i - rebalance_window - validation_window]].to_list()[-1]
         start_date_index = end_date_index - validation_window*30 + 1
 
+        insample_turbulence = df[(df.datadate<=unique_trade_date[i - rebalance_window - validation_window]) & (df.datadate>=20100201)]
+        insample_turbulence = insample_turbulence.drop_duplicates(subset=['datadate'])
+        insample_turbulence_threshold = np.quantile(insample_turbulence.turbulence.values, .90)
+
+
         historical_turbulence = df.iloc[start_date_index:(end_date_index + 1), :]
         #historical_turbulence = df[(df.datadate<unique_trade_date[i - rebalance_window - validation_window]) & (df.datadate>=(unique_trade_date[i - rebalance_window - validation_window - 63]))]
 
@@ -294,6 +300,13 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         else:
             model_ensemble = model_ddpg
             model_use.append('DDPG')
+
+        train = data_split(df, start=20100201, end=unique_trade_date[i - rebalance_window])
+        env_train = DummyVecEnv([lambda: StockEnvTrain(train)])
+        model_ensemble.learn(total_timesteps=30000)
+        model_ensemble.save(f"{config.TRAINED_MODEL_DIR}/{model_use}_{20100201}_{unique_trade_date[i - rebalance_window]}")
+
+        
         ############## Training and Validation ends ##############
 
         ############## Trading starts ##############
@@ -308,5 +321,8 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         # print("============Trading Done============")
         ############## Trading ends ##############
 
+    table = pd.DataFrame(list(zip(a2c_sharpe_list, ddpg_sharpe_list, ppo_sharpe_list, model_use)),
+              columns=['a2c_sharpe', 'ddpg_sharpe', 'ppo_sharpe', 'model_use'])
+    table.to_csv('table.csv')
     end = time.time()
     print("Ensemble Strategy took: ", (end - start) / 60, " minutes")
