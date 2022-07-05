@@ -217,7 +217,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
             # if the mean of the historical data is less than the 90% quantile of insample turbulence data
             # then we tune up the turbulence_threshold, meaning we lower the risk
             turbulence_threshold = np.quantile(insample_turbulence.turbulence.values, 1)
-        print("turbulence_threshold: ", turbulence_threshold)
+        # print("turbulence_threshold: ", turbulence_threshold)
 
         ############## Environment Setup starts ##############
         ## training env
@@ -227,13 +227,13 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         ## validation env
         validation = data_split(df, start=unique_trade_date[i - rebalance_window - validation_window],
                                 end=unique_trade_date[i - rebalance_window])
-        
+        turbulence_threshold = 1e9 # get rid of turbulence
         ############## Environment Setup ends ##############
 
         ############## Training and Validation starts ##############
         print("======Model training from: ", 20100201, "to ",
               unique_trade_date[i - rebalance_window - validation_window])
-        print("Turbulence threshold: ", turbulence_threshold)
+        # print("Turbulence threshold: ", turbulence_threshold)
         # print("training: ",len(data_split(df, start=20090000, end=test.datadate.unique()[i-rebalance_window]) ))
         # print("==============Model Training===========")
 
