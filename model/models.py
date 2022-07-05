@@ -31,7 +31,7 @@ def train_A2C(env_train, model_name, timesteps=25000):
     """A2C model"""
 
     start = time.time()
-    model = A2C('MlpPolicy', env_train, verbose=0, n_steps=7)
+    model = A2C('MlpPolicy', env_train, verbose=0, n_steps=20)
     model.learn(total_timesteps=timesteps)
     end = time.time()
 
@@ -244,7 +244,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
 
 
         print("======A2C Training========")
-        model_a2c = train_A2C(env_train, model_name="A2C_10k_dow_{}".format(i), timesteps=30000)
+        model_a2c = train_A2C(env_train, model_name="A2C_10k_dow_{}".format(i), timesteps=100000)
         print("======A2C Validation from: ", unique_trade_date[i - rebalance_window - validation_window], "to ",
               unique_trade_date[i - rebalance_window])
         env_val = DummyVecEnv([lambda: StockEnvValidation(validation,
@@ -272,7 +272,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
 
 
         print("======DDPG Training========")
-        model_ddpg = train_DDPG(env_train, model_name="DDPG_10k_dow_{}".format(i), timesteps=10000)
+        model_ddpg = train_DDPG(env_train, model_name="DDPG_10k_dow_{}".format(i), timesteps=100000)
         #model_ddpg = train_TD3(env_train, model_name="DDPG_10k_dow_{}".format(i), timesteps=20000)
         print("======DDPG Validation from: ", unique_trade_date[i - rebalance_window - validation_window], "to ",
               unique_trade_date[i - rebalance_window])
@@ -304,13 +304,6 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
             model_ensemble = model_ddpg
             model_use.append('DDPG')
 
-        train = data_split(df, start=20100201, end=unique_trade_date[i - rebalance_window])
-        # env_train = DummyVecEnv([lambda: StockEnvTrain(train)])
-        # model_ensemble.learn(total_timesteps=100000)
-        # model_ensemble.save(f"{config.TRAINED_MODEL_DIR}/{model_use}_{20100201}_{unique_trade_date[i - rebalance_window]}")
-        insample_turbulence = df[(df.datadate<=unique_trade_date[i - rebalance_window ]) & (df.datadate>=20100201)]
-        insample_turbulence = insample_turbulence.drop_duplicates(subset=['datadate'])
-        insample_turbulence_threshold = np.quantile(insample_turbulence.turbulence.values, .90)
 
         
         ############## Training and Validation ends ##############
