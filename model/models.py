@@ -31,7 +31,7 @@ def train_A2C(env_train, model_name, timesteps=25000):
     """A2C model"""
 
     start = time.time()
-    model = A2C('MlpPolicy', env_train, verbose=0, n_steps=20)
+    model = A2C('MlpPolicy', env_train, verbose=0)
     model.learn(total_timesteps=timesteps)
     end = time.time()
 
@@ -71,7 +71,7 @@ def train_PPO(env_train, model_name, timesteps=50000):
     """PPO model"""
 
     start = time.time()
-    model = PPO2('MlpPolicy', env_train, n_steps=2048)
+    model = PPO2('MlpPolicy', env_train, ent_coef = 0.005, nminibatches = 8)
     #model = PPO2('MlpPolicy', env_train, ent_coef = 0.005)
 
     model.learn(total_timesteps=timesteps)
@@ -197,10 +197,6 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         # Turbulence lookback window is one quarter
         end_date_index = df.index[df["datadate"] == unique_trade_date[i - rebalance_window - validation_window]].to_list()[-1]
         start_date_index = end_date_index - validation_window*30 + 1
-
-        insample_turbulence = df[(df.datadate<=unique_trade_date[i - rebalance_window - validation_window]) & (df.datadate>=20100201)]
-        insample_turbulence = insample_turbulence.drop_duplicates(subset=['datadate'])
-        insample_turbulence_threshold = np.quantile(insample_turbulence.turbulence.values, .90)
 
 
         historical_turbulence = df.iloc[start_date_index:(end_date_index + 1), :]
