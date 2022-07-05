@@ -290,10 +290,13 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         a2c_sharpe_list.append(sharpe_a2c)
         ddpg_sharpe_list.append(sharpe_ddpg)
 
+        # timesteps=10000
         # Model Selection based on sharpe ratio
         if (sharpe_ppo >= sharpe_a2c) & (sharpe_ppo >= sharpe_ddpg):
             model_ensemble = model_ppo
             model_use.append('PPO')
+            # timesteps=10000
+
         elif (sharpe_a2c > sharpe_ppo) & (sharpe_a2c > sharpe_ddpg):
             model_ensemble = model_a2c
             model_use.append('A2C')
@@ -303,7 +306,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
 
         train = data_split(df, start=20100201, end=unique_trade_date[i - rebalance_window])
         env_train = DummyVecEnv([lambda: StockEnvTrain(train)])
-        model_ensemble.learn(total_timesteps=30000)
+        model_ensemble.learn(total_timesteps=10000)
         model_ensemble.save(f"{config.TRAINED_MODEL_DIR}/{model_use}_{20100201}_{unique_trade_date[i - rebalance_window]}")
         insample_turbulence = df[(df.datadate<=unique_trade_date[i - rebalance_window ]) & (df.datadate>=20100201)]
         insample_turbulence = insample_turbulence.drop_duplicates(subset=['datadate'])
