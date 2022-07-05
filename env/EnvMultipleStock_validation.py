@@ -168,6 +168,8 @@ class StockEnvValidation(gym.Env):
             
             sell_index = argsort_actions[:np.where(actions < 0)[0].shape[0]]
             buy_index = argsort_actions[::-1][:np.where(actions > 0)[0].shape[0]]
+            not_sell_index = argsort_actions[::-1][:np.where(actions >= 0)[0].shape[0]]
+            prev_stock_price = np.array(self.state[1:(STOCK_DIM + 1)])
 
             for index in sell_index:
                 # print('take sell action'.format(actions[index]))
@@ -197,7 +199,16 @@ class StockEnvValidation(gym.Env):
             #print("end_total_asset:{}".format(end_total_asset))
             
             self.best_networth = max(self.best_networth, end_total_asset)
-            self.reward = end_total_asset - begin_total_asset            
+            # self.reward = end_total_asset - begin_total_asset     
+            temp = 0
+            current_stock_price = np.array(self.state[1:(STOCK_DIM + 1)])
+            for index in not_sell_index:
+                temp += (current_stock_price[index] - prev_stock_price[index]) * self.state[index + STOCK_DIM + 1]
+
+            for index in sell_index:
+                temp += (-current_stock_price[index] + prev_stock_price[index]) * self.state[index + STOCK_DIM + 1]
+
+            self.reward = temp            
             # print("step_reward:{}".format(self.reward))
             self.rewards_memory.append(self.reward)
             
