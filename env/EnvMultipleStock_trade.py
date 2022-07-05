@@ -78,11 +78,11 @@ class StockEnvTrade(gym.Env):
             if self.state[index+STOCK_DIM+1] > 0 :
                 #update balance
                 self.state[0] += \
-                self.state[index+1]*min(abs(action),self.state[index+STOCK_DIM+1]) * \
+                self.state[index+1]*min(abs(action),self.state[index+STOCK_DIM+1]) * 10 * \
                  (1- TRANSACTION_FEE_PERCENT)
                 
-                self.state[index+STOCK_DIM+1] -= min(abs(action), self.state[index+STOCK_DIM+1])
-                self.cost +=self.state[index+1]*min(abs(action),self.state[index+STOCK_DIM+1]) * \
+                self.state[index+STOCK_DIM+1] -= min(abs(action), self.state[index+STOCK_DIM+1]) * 10
+                self.cost +=self.state[index+1]*min(abs(action),self.state[index+STOCK_DIM+1]) *10 * \
                  TRANSACTION_FEE_PERCENT
                 self.trades+=1
             else:
@@ -107,12 +107,12 @@ class StockEnvTrade(gym.Env):
             # print('available_amount:{}'.format(available_amount))
             
             #update balance
-            self.state[0] -= self.state[index+1]*min(available_amount, action)* \
+            self.state[0] -= self.state[index+1]*10*min(available_amount, action)* \
                               (1+ TRANSACTION_FEE_PERCENT)
 
-            self.state[index+STOCK_DIM+1] += min(available_amount, action)
+            self.state[index+STOCK_DIM+1] += 10*min(available_amount, action)
             
-            self.cost+=self.state[index+1]*min(available_amount, action)* \
+            self.cost+=self.state[index+1]*10*min(available_amount, action)* \
                               TRANSACTION_FEE_PERCENT
             self.trades+=1
         else:
