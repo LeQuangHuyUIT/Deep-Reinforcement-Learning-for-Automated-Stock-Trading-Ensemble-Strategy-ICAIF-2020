@@ -40,8 +40,13 @@ from env.EnvMultipleStock_trade import StockEnvTrade
 def train_A2C(env_train, model_name, timesteps=25000):
     """A2C model"""
 
+    A2C_model_kwargs = {
+                    'n_steps': 5,
+                    'ent_coef': 0.01,
+                    'learning_rate': 0.0005
+                    }
     start = time.time()
-    model = A2C('MlpPolicy', env_train, verbose=0)
+    model = A2C('MlpPolicy', env_train, verbose=0, **A2C_model_kwargs)
     model.learn(total_timesteps=timesteps)
     end = time.time()
 
@@ -68,8 +73,15 @@ def train_DDPG(env_train, model_name, timesteps=10000):
     param_noise = None
     action_noise = OrnsteinUhlenbeckActionNoise(mean=np.zeros(n_actions), sigma=float(0.5) * np.ones(n_actions))
 
+    DDPG_model_kwargs = {
+                      #"action_noise":"ornstein_uhlenbeck",
+                      "buffer_size": 10_000,
+                      "learning_rate": 0.0005,
+                      "batch_size": 64
+                    }
+
     start = time.time()
-    model = DDPG('MlpPolicy', env_train, param_noise=param_noise, action_noise=action_noise)
+    model = DDPG('MlpPolicy', env_train, **DDPG_model_kwargs)
     model.learn(total_timesteps=timesteps)
     end = time.time()
 
@@ -80,8 +92,15 @@ def train_DDPG(env_train, model_name, timesteps=10000):
 def train_PPO(env_train, model_name, timesteps=50000):
     """PPO model"""
 
+    PPO_model_kwargs = {
+                    "ent_coef":0.01,
+                    "n_steps": 2048,
+                    "learning_rate": 0.00025,
+                    "batch_size": 64
+                    }
+
     start = time.time()
-    model = PPO('MlpPolicy', env_train, ent_coef = 0.005, nminibatches = 8)
+    model = PPO('MlpPolicy', env_train, **PPO_model_kwargs)
     #model = PPO2('MlpPolicy', env_train, ent_coef = 0.005)
 
     model.learn(total_timesteps=timesteps)
