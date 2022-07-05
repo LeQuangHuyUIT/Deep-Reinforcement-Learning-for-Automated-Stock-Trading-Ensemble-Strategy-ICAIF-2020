@@ -178,7 +178,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
     # based on the analysis of the in-sample data
     #turbulence_threshold = 140
     #insample data 2010-02-01 - 2016-02-01
-    insample_turbulence = df[(df.datadate<=20160201) & (df.datadate>=20100201)]
+    insample_turbulence = df[(df.datadate<=20170201) & (df.datadate>=20100201)]
     insample_turbulence = insample_turbulence.drop_duplicates(subset=['datadate'])
     insample_turbulence_threshold = np.quantile(insample_turbulence.turbulence.values, .90)
 
