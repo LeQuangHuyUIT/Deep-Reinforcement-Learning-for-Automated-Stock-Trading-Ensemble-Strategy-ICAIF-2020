@@ -66,7 +66,7 @@ class StockEnvTrade(gym.Env):
         self.cut_loss_threshold = 0.95
         #self.reset()
         self._seed()
-        self.CutLoss = True 
+        self.CutLoss = False 
 
         self.model_name=model_name        
         self.iteration=iteration
