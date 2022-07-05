@@ -305,6 +305,9 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         env_train = DummyVecEnv([lambda: StockEnvTrain(train)])
         model_ensemble.learn(total_timesteps=30000)
         model_ensemble.save(f"{config.TRAINED_MODEL_DIR}/{model_use}_{20100201}_{unique_trade_date[i - rebalance_window]}")
+        insample_turbulence = df[(df.datadate<=unique_trade_date[i - rebalance_window - validation_window]) & (df.datadate>=20100201)]
+        insample_turbulence = insample_turbulence.drop_duplicates(subset=['datadate'])
+        insample_turbulence_threshold = np.quantile(insample_turbulence.turbulence.values, .90)
 
         
         ############## Training and Validation ends ##############
@@ -316,7 +319,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
                                              last_state=last_state_ensemble, iter_num=i,
                                              unique_trade_date=unique_trade_date,
                                              rebalance_window=rebalance_window,
-                                             turbulence_threshold=turbulence_threshold,
+                                             turbulence_threshold=insample_turbulence_threshold,
                                              initial=initial)
         # print("============Trading Done============")
         ############## Trading ends ##############
