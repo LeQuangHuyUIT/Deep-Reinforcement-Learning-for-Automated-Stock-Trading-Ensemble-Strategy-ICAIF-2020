@@ -4,8 +4,8 @@ pandas==1.0.3
 stockstats
 scikit-learn==0.21.0
 gym==0.15.3
-stable-baselines[mpi]
-# stable-baselines3
+# stable-baselines[mpi]
+stable-baselines3[extra]
 tensorflow==1.15.4
 
 joblib==0.15.1
