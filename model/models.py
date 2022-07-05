@@ -306,7 +306,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
 
         train = data_split(df, start=20100201, end=unique_trade_date[i - rebalance_window])
         env_train = DummyVecEnv([lambda: StockEnvTrain(train)])
-        model_ensemble.learn(total_timesteps=10000)
+        model_ensemble.learn(total_timesteps=100000)
         model_ensemble.save(f"{config.TRAINED_MODEL_DIR}/{model_use}_{20100201}_{unique_trade_date[i - rebalance_window]}")
         insample_turbulence = df[(df.datadate<=unique_trade_date[i - rebalance_window ]) & (df.datadate>=20100201)]
         insample_turbulence = insample_turbulence.drop_duplicates(subset=['datadate'])
