@@ -141,6 +141,7 @@ class StockEnvTrade(gym.Env):
             print("previous_total_asset:{}".format(self.asset_memory[0]))           
 
             print("end_total_asset:{}".format(end_total_asset))
+            print("highest value:{}".format(self.best_networth))
             # print("total_reward:{}".format(self.state[0]+sum(np.array(self.state[1:(STOCK_DIM+1)])*np.array(self.state[(STOCK_DIM+1):(STOCK_DIM*2+1)]))- self.asset_memory[0] ))
             print("total_cost: ", self.cost)
             print("total trades: ", self.trades)
