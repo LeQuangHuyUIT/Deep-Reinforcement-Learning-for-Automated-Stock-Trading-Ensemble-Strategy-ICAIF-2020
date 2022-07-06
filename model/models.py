@@ -230,7 +230,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         # Tuning trubulence index based on historical data
         # Turbulence lookback window is one quarter
         end_date_index = df.index[df["datadate"] == unique_trade_date[i - rebalance_window - validation_window]].to_list()[-1]
-        start_date_index = end_date_index - validation_window*12 + 1
+        start_date_index = end_date_index - validation_window*30 + 1
 
 
         historical_turbulence = df.iloc[start_date_index:(end_date_index + 1), :]
