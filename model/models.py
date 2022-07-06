@@ -269,7 +269,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         ############## Training and Validation starts ##############
         print("======Model training from: ", 20100201, "to ",
               unique_trade_date[i - rebalance_window - validation_window])
-        print("Turbulence threshold: ", turbulence_threshold)
+        # print("Turbulence threshold: ", turbulence_threshold)
         # print("training: ",len(data_split(df, start=20090000, end=test.datadate.unique()[i-rebalance_window]) ))
         # print("==============Model Training===========")
 
