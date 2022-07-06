@@ -163,7 +163,7 @@ def DRL_prediction(df,
     obs_trade = env_trade.reset()
 
     for i in range(len(trade_data.index.unique())):
-        action, _states = model.predict(obs_trade)
+        action, _states = model.predict(obs_trade, deterministic=True)
         obs_trade, rewards, dones, info = env_trade.step(action)
         if i == (len(trade_data.index.unique()) - 2):
             # print(env_test.render())
@@ -177,7 +177,7 @@ def DRL_prediction(df,
 def DRL_validation(model, test_data, test_env, test_obs) -> None:
     ###validation process###
     for i in range(len(test_data.index.unique())):
-        action, _states = model.predict(test_obs)
+        action, _states = model.predict(test_obs,  deterministic=True)
         test_obs, rewards, dones, info = test_env.step(action)
 
 
