@@ -47,7 +47,7 @@ def train_A2C(env_train, model_name, timesteps=25000):
                     }
     start = time.time()
     model = A2C('MlpPolicy', env_train, verbose=0)
-    model.learn(total_timesteps=timesteps)
+    model.learn(total_timesteps=timesteps, **A2C_model_kwargs)
     end = time.time()
 
     model.save(f"{config.TRAINED_MODEL_DIR}/{model_name}")
@@ -74,14 +74,14 @@ def train_DDPG(env_train, model_name, timesteps=10000):
     action_noise = OrnsteinUhlenbeckActionNoise(mean=np.zeros(n_actions), sigma=float(0.5) * np.ones(n_actions))
 
     DDPG_model_kwargs = {
-                      #"action_noise":"ornstein_uhlenbeck",
+                    #   "action_noise":"ornstein_uhlenbeck",
                       "buffer_size": 10_000,
                       "learning_rate": 0.0005,
                       "batch_size": 64
                     }
 
     start = time.time()
-    model = DDPG('MlpPolicy', env_train)
+    model = DDPG('MlpPolicy', env_train, action_noise=action_noise, **DDPG_model_kwargs)
     model.learn(total_timesteps=timesteps)
     end = time.time()
 
@@ -103,7 +103,7 @@ def train_PPO(env_train, model_name, timesteps=50000):
     model = PPO2('MlpPolicy', env_train)
     #model = PPO2('MlpPolicy', env_train, ent_coef = 0.005)
 
-    model.learn(total_timesteps=timesteps)
+    model.learn(total_timesteps=timesteps, **PPO_model_kwargs)
     end = time.time()
 
     model.save(f"{config.TRAINED_MODEL_DIR}/{model_name}")
