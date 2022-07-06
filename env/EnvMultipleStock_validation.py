@@ -62,7 +62,7 @@ class StockEnvValidation(gym.Env):
         self.rewards_memory = []
         #self.reset()
         self._seed()
-        self.CutLoss = True
+        self.CutLoss = False
         self.iteration=iteration
 
 

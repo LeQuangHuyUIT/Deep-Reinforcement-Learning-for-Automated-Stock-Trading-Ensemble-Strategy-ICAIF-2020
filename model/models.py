@@ -230,7 +230,9 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
 
         historical_turbulence = df.iloc[start_date_index:(end_date_index + 1), :]
         #historical_turbulence = df[(df.datadate<unique_trade_date[i - rebalance_window - validation_window]) & (df.datadate>=(unique_trade_date[i - rebalance_window - validation_window - 63]))]
-
+        insample_turbulence = df[(df.datadate<=unique_trade_date[i - rebalance_window - validation_window]) & (df.datadate>=20100201)]
+        insample_turbulence = insample_turbulence.drop_duplicates(subset=['datadate'])
+        insample_turbulence_threshold = np.quantile(insample_turbulence.turbulence.values, .90)
 
         historical_turbulence = historical_turbulence.drop_duplicates(subset=['datadate'])
 
@@ -268,7 +270,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
 
 
         print("======A2C Training========")
-        model_a2c = train_A2C(env_train, model_name="A2C_10k_dow_{}".format(i), timesteps=30000)
+        model_a2c = train_A2C(env_train, model_name="A2C_10k_dow_{}".format(i), timesteps=100000)
         print("======A2C Validation from: ", unique_trade_date[i - rebalance_window - validation_window], "to ",
               unique_trade_date[i - rebalance_window])
         env_val = DummyVecEnv([lambda: StockEnvValidation(validation,
@@ -296,7 +298,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
 
 
         print("======DDPG Training========")
-        model_ddpg = train_DDPG(env_train, model_name="DDPG_10k_dow_{}".format(i), timesteps=10000)
+        model_ddpg = train_DDPG(env_train, model_name="DDPG_10k_dow_{}".format(i), timesteps=100000)
         #model_ddpg = train_TD3(env_train, model_name="DDPG_10k_dow_{}".format(i), timesteps=20000)
         print("======DDPG Validation from: ", unique_trade_date[i - rebalance_window - validation_window], "to ",
               unique_trade_date[i - rebalance_window])
