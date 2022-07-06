@@ -47,6 +47,7 @@ def train_A2C(env_train, model_name, timesteps=25000):
                     }
     start = time.time()
     model = A2C('MlpPolicy', env_train, verbose=0)
+    model.load(f"{config.BASELINE_DIR}/A2C_10k_down_126")
     model.learn(total_timesteps=timesteps)
     end = time.time()
 
@@ -82,6 +83,8 @@ def train_DDPG(env_train, model_name, timesteps=10000):
 
     start = time.time()
     model = DDPG('MlpPolicy', env_train, action_noise=action_noise)
+    model.load(f"{config.BASELINE_DIR}/DDPG_10k_down_126")
+
     model.learn(total_timesteps=timesteps)
     end = time.time()
 
@@ -102,6 +105,7 @@ def train_PPO(env_train, model_name, timesteps=50000):
     start = time.time()
     model = PPO2('MlpPolicy', env_train)
     #model = PPO2('MlpPolicy', env_train, ent_coef = 0.005)
+    model.load(f"{config.BASELINE_DIR}/PPO_10k_down_126")
 
     model.learn(total_timesteps=timesteps)
     end = time.time()
