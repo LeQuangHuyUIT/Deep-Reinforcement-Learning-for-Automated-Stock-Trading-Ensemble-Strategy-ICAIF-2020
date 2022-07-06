@@ -46,8 +46,8 @@ def train_A2C(env_train, model_name, timesteps=25000):
                     'learning_rate': 0.0005
                     }
     start = time.time()
-    model = A2C('MlpPolicy', env_train, verbose=0)
-    model.learn(total_timesteps=timesteps, **A2C_model_kwargs)
+    model = A2C('MlpPolicy', env_train, verbose=0, **A2C_model_kwargs)
+    model.learn(total_timesteps=timesteps)
     end = time.time()
 
     model.save(f"{config.TRAINED_MODEL_DIR}/{model_name}")
