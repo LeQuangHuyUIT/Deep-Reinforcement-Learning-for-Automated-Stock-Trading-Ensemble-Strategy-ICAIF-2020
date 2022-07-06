@@ -265,13 +265,13 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         ############## Training and Validation starts ##############
         print("======Model training from: ", 20100201, "to ",
               unique_trade_date[i - rebalance_window - validation_window])
-        # print("Turbulence threshold: ", turbulence_threshold)
+        print("Turbulence threshold: ", turbulence_threshold)
         # print("training: ",len(data_split(df, start=20090000, end=test.datadate.unique()[i-rebalance_window]) ))
         # print("==============Model Training===========")
 
 
         print("======A2C Training========")
-        model_a2c = train_A2C(env_train, model_name="A2C_10k_dow_{}".format(i), timesteps=100000)
+        model_a2c = train_A2C(env_train, model_name="A2C_10k_dow_{}".format(i), timesteps=30000)
         print("======A2C Validation from: ", unique_trade_date[i - rebalance_window - validation_window], "to ",
               unique_trade_date[i - rebalance_window])
         env_val = DummyVecEnv([lambda: StockEnvValidation(validation,
@@ -285,7 +285,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
 
 
         print("======PPO Training========")
-        model_ppo = train_PPO(env_train, model_name="PPO_10k_dow_{}".format(i), timesteps=100000)
+        model_ppo = train_PPO(env_train, model_name="PPO_10k_dow_{}".format(i), timesteps=10000)
         print("======PPO Validation from: ", unique_trade_date[i - rebalance_window - validation_window], "to ",
               unique_trade_date[i - rebalance_window])
         env_val = DummyVecEnv([lambda: StockEnvValidation(validation,
