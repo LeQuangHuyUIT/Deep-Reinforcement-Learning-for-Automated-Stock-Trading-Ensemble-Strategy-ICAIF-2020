@@ -62,7 +62,7 @@ class StockEnvValidation(gym.Env):
         self.rewards_memory = []
         #self.reset()
         self._seed()
-        self.CutLoss = True
+        self.CutLoss = False
         self.iteration=iteration
 
 
@@ -160,7 +160,7 @@ class StockEnvValidation(gym.Env):
             #actions = (actions.astype(int))
             begin_total_asset = self.state[0]+ \
             sum(np.array(self.state[1:(STOCK_DIM+1)])*np.array(self.state[(STOCK_DIM+1):(STOCK_DIM*2+1)]))
-            
+
             if self.turbulence>=self.turbulence_threshold or self.decide_cut_loss(begin_total_asset):
                 actions=np.array([-HMAX_NORMALIZE]*STOCK_DIM)
             
