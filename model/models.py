@@ -201,7 +201,8 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
     ppo_sharpe_list = []
     ddpg_sharpe_list = []
     a2c_sharpe_list = []
-
+    start_validation_list = []
+    end_validation_list = []
     model_use = []
 
     # based on the analysis of the in-sample data
@@ -225,7 +226,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         # Tuning trubulence index based on historical data
         # Turbulence lookback window is one quarter
         end_date_index = df.index[df["datadate"] == unique_trade_date[i - rebalance_window - validation_window]].to_list()[-1]
-        start_date_index = end_date_index - validation_window*30 + 1
+        start_date_index = end_date_index - validation_window*12 + 1
 
 
         historical_turbulence = df.iloc[start_date_index:(end_date_index + 1), :]
@@ -270,7 +271,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
 
 
         print("======A2C Training========")
-        model_a2c = train_A2C(env_train, model_name="A2C_10k_dow_{}".format(i), timesteps=30000)
+        model_a2c = train_A2C(env_train, model_name="A2C_10k_dow_{}".format(i), timesteps=100000)
         print("======A2C Validation from: ", unique_trade_date[i - rebalance_window - validation_window], "to ",
               unique_trade_date[i - rebalance_window])
         env_val = DummyVecEnv([lambda: StockEnvValidation(validation,
@@ -298,7 +299,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
 
 
         print("======DDPG Training========")
-        model_ddpg = train_DDPG(env_train, model_name="DDPG_10k_dow_{}".format(i), timesteps=10000)
+        model_ddpg = train_DDPG(env_train, model_name="DDPG_10k_dow_{}".format(i), timesteps=100000)
         #model_ddpg = train_TD3(env_train, model_name="DDPG_10k_dow_{}".format(i), timesteps=20000)
         print("======DDPG Validation from: ", unique_trade_date[i - rebalance_window - validation_window], "to ",
               unique_trade_date[i - rebalance_window])
@@ -311,7 +312,8 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         sharpe_ddpg = get_validation_sharpe(i, "DDPG")
         print("DDPG Sharpe Ratio: ", sharpe_ddpg)
 
-
+        start_validation_list.append(unique_trade_date[i - rebalance_window - validation_window])
+        end_validation_list.append(unique_trade_date[i - rebalance_window])
         ppo_sharpe_list.append(sharpe_ppo)
         a2c_sharpe_list.append(sharpe_a2c)
         ddpg_sharpe_list.append(sharpe_ddpg)
@@ -330,7 +332,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
             model_ensemble = model_ddpg
             model_use.append('DDPG')
 
-
+    
         
         ############## Training and Validation ends ##############
 
@@ -346,8 +348,8 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         # print("============Trading Done============")
         ############## Trading ends ##############
 
-    table = pd.DataFrame(list(zip(a2c_sharpe_list, ddpg_sharpe_list, ppo_sharpe_list, model_use)),
-              columns=['a2c_sharpe', 'ddpg_sharpe', 'ppo_sharpe', 'model_use'])
+    table = pd.DataFrame(list(zip(start_validation_list, end_validation_list, a2c_sharpe_list, ddpg_sharpe_list, ppo_sharpe_list, model_use)),
+              columns=['start_validation', 'end_validation ','a2c_sharpe', 'ddpg_sharpe', 'ppo_sharpe', 'model_use'])
     table.to_csv('table.csv')
     end = time.time()
     print("Ensemble Strategy took: ", (end - start) / 60, " minutes")
