@@ -30,6 +30,7 @@ class StockEnvTrade(gym.Env):
                  ,initial=True, previous_state=[], model_name='', iteration=''):
         #super(StockEnv, self).__init__()
         #money = 10 , scope = 1
+        STOCK_DIM = len(df.tic.unique())
         self.day = day
         self.df = df
         self.initial = initial

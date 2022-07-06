@@ -2,7 +2,7 @@
 import pandas as pd
 import numpy as np
 import time
-from stable_baselines3.common.vec_env import DummyVecEnv
+from stable_baselines.common.vec_env import DummyVecEnv
 # preprocessor
 from preprocessing.preprocessors import *
 # config

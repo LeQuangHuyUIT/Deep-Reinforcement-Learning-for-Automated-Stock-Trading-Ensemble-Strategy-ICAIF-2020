@@ -5,29 +5,29 @@ import time
 import gym
 
 # RL models from stable-baselines
-# from stable_baselines import GAIL, SAC
-# from stable_baselines import ACER
-# from stable_baselines import PPO2
-# from stable_baselines import A2C
-# from stable_baselines import DDPG
-# from stable_baselines import TD3
+from stable_baselines import GAIL, SAC
+from stable_baselines import ACER
+from stable_baselines import PPO2
+from stable_baselines import A2C
+from stable_baselines import DDPG
+from stable_baselines import TD3
 
-# from stable_baselines.gail import generate_expert_traj
-# from stable_baselines.gail import ExpertDataset
-# from stable_baselines.ddpg.policies import DDPGPolicy
-# from stable_baselines.common.policies import MlpPolicy, MlpLstmPolicy, MlpLnLstmPolicy
-# from stable_baselines.common.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise, AdaptiveParamNoiseSpec
-# from stable_baselines.common.vec_env import DummyVecEnv
+from stable_baselines.gail import generate_expert_traj
+from stable_baselines.gail import ExpertDataset
+from stable_baselines.ddpg.policies import DDPGPolicy
+from stable_baselines.common.policies import MlpPolicy, MlpLstmPolicy, MlpLnLstmPolicy
+from stable_baselines.common.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise, AdaptiveParamNoiseSpec
+from stable_baselines.common.vec_env import DummyVecEnv
 
-from stable_baselines3 import A2C
-from stable_baselines3 import DDPG
-from stable_baselines3 import PPO
-from stable_baselines3 import SAC
-from stable_baselines3 import TD3
-from stable_baselines3.common.callbacks import BaseCallback
-from stable_baselines3.common.noise import NormalActionNoise
-from stable_baselines3.common.noise import OrnsteinUhlenbeckActionNoise
-from stable_baselines3.common.vec_env import DummyVecEnv
+# from stable_baselines3 import A2C
+# from stable_baselines3 import DDPG
+# from stable_baselines3 import PPO
+# from stable_baselines3 import SAC
+# from stable_baselines3 import TD3
+# from stable_baselines3.common.callbacks import BaseCallback
+# from stable_baselines3.common.noise import NormalActionNoise
+# from stable_baselines3.common.noise import OrnsteinUhlenbeckActionNoise
+# from stable_baselines3.common.vec_env import DummyVecEnv
 from preprocessing.preprocessors import *
 from config import config
 
@@ -100,7 +100,7 @@ def train_PPO(env_train, model_name, timesteps=50000):
                     }
 
     start = time.time()
-    model = PPO('MlpPolicy', env_train, **PPO_model_kwargs)
+    model = PPO2('MlpPolicy', env_train, **PPO_model_kwargs)
     #model = PPO2('MlpPolicy', env_train, ent_coef = 0.005)
 
     model.learn(total_timesteps=timesteps)
@@ -256,7 +256,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         ## validation env
         validation = data_split(df, start=unique_trade_date[i - rebalance_window - validation_window],
                                 end=unique_trade_date[i - rebalance_window])
-        turbulence_threshold = 1e9 # get rid of turbulence
+        # turbulence_threshold = 1e9 # get rid of turbulence
         ############## Environment Setup ends ##############
 
         ############## Training and Validation starts ##############

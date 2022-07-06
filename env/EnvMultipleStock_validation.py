@@ -31,6 +31,7 @@ class StockEnvValidation(gym.Env):
         #money = 10 , scope = 1
         self.day = day
         self.df = df
+        STOCK_DIM = len(df.tic.unique())
         # action_space normalization and shape is STOCK_DIM
         self.action_space = spaces.Box(low = -1, high = 1,shape = (STOCK_DIM,)) 
         # Shape = 181: [Current Balance]+[prices 1-30]+[owned shares 1-30] 
@@ -55,7 +56,7 @@ class StockEnvValidation(gym.Env):
         self.cost = 0
         self.trades = 0
         self.best_networth = 0
-        self.cut_loss_threshold = 0.8
+        self.cut_loss_threshold = 0.95
         # memorize all the total balance change
         self.asset_memory = [INITIAL_ACCOUNT_BALANCE]
         self.rewards_memory = []

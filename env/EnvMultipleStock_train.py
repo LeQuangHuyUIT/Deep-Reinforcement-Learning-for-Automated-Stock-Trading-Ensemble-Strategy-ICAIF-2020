@@ -28,6 +28,7 @@ class StockEnvTrain(gym.Env):
         #money = 10 , scope = 1
         self.day = day
         self.df = df
+        STOCK_DIM = len(df.tic.unique())
 
         # action_space normalization and shape is STOCK_DIM
         self.action_space = spaces.Box(low = -1, high = 1,shape = (STOCK_DIM,)) 
