@@ -47,7 +47,7 @@ def train_A2C(env_train, model_name, timesteps=25000):
                     }
     start = time.time()
     model = A2C('MlpPolicy', env_train, verbose=0)
-    model.load(f"{config.BASELINE_DIR}/A2C_10k_down_126")
+    model.load(f"{config.BASELINE_DIR}/A2C_10k_dow_126")
     model.learn(total_timesteps=timesteps)
     end = time.time()
 
@@ -83,7 +83,7 @@ def train_DDPG(env_train, model_name, timesteps=10000):
 
     start = time.time()
     model = DDPG('MlpPolicy', env_train, action_noise=action_noise)
-    model.load(f"{config.BASELINE_DIR}/DDPG_10k_down_126")
+    model.load(f"{config.BASELINE_DIR}/DDPG_10k_dow_126")
 
     model.learn(total_timesteps=timesteps)
     end = time.time()
@@ -105,7 +105,7 @@ def train_PPO(env_train, model_name, timesteps=50000):
     start = time.time()
     model = PPO2('MlpPolicy', env_train)
     #model = PPO2('MlpPolicy', env_train, ent_coef = 0.005)
-    model.load(f"{config.BASELINE_DIR}/PPO_10k_down_126")
+    model.load(f"{config.BASELINE_DIR}/PPO_10k_dow_126")
 
     model.learn(total_timesteps=timesteps)
     end = time.time()
@@ -275,7 +275,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
 
 
         print("======A2C Training========")
-        model_a2c = train_A2C(env_train, model_name="A2C_10k_dow_{}".format(i), timesteps=30000)
+        model_a2c = train_A2C(env_train, model_name="A2C_10k_dow_{}".format(i), timesteps=100000)
         print("======A2C Validation from: ", unique_trade_date[i - rebalance_window - validation_window], "to ",
               unique_trade_date[i - rebalance_window])
         env_val = DummyVecEnv([lambda: StockEnvValidation(validation,
@@ -303,7 +303,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
 
 
         print("======DDPG Training========")
-        model_ddpg = train_DDPG(env_train, model_name="DDPG_10k_dow_{}".format(i), timesteps=10000)
+        model_ddpg = train_DDPG(env_train, model_name="DDPG_10k_dow_{}".format(i), timesteps=100000)
         #model_ddpg = train_TD3(env_train, model_name="DDPG_10k_dow_{}".format(i), timesteps=20000)
         print("======DDPG Validation from: ", unique_trade_date[i - rebalance_window - validation_window], "to ",
               unique_trade_date[i - rebalance_window])
