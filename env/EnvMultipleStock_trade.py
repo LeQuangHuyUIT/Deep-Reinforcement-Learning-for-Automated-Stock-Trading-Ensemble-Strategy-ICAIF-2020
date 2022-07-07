@@ -193,7 +193,7 @@ class StockEnvTrade(gym.Env):
                 else: self._sell_stock(index, actions[index])
 
             for index in buy_index:
-                if self.last_price_bought[index] >= self.state[1 + index]:
+                if self.last_price_bought[index] <= self.state[1 + index]:
                     # print('take buy action: {}'.format(actions[index]))
                     self._buy_stock(index, actions[index])
                     self.last_price_bought[index] = self.state[1 + index]
