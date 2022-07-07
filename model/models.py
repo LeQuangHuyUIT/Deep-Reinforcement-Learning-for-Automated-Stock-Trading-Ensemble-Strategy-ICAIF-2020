@@ -269,7 +269,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         ## validation env
         validation = data_split(df, start=unique_trade_date[i - rebalance_window - validation_window],
                                 end=unique_trade_date[i - rebalance_window])
-        turbulence_threshold = 1e9 # get rid of turbulence
+        # turbulence_threshold = 1e9 # get rid of turbulence
         ############## Environment Setup ends ##############
 
         ############## Training and Validation starts ##############
