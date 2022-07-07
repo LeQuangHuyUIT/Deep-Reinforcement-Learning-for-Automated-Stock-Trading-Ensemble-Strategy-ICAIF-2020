@@ -27,7 +27,7 @@ class StockEnvTrade(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self, df,day = 0,turbulence_threshold=140
-                 ,initial=True, previous_state=[], model_name='', iteration=''):
+                 ,initial=True, previous_state=[], model_name='', iteration='', best_networth=-1, last_price_bought= []):
         #super(StockEnv, self).__init__()
         #money = 10 , scope = 1
         STOCK_DIM = len(df.tic.unique())
@@ -57,10 +57,12 @@ class StockEnvTrade(gym.Env):
         self.turbulence = 0
         self.cost = 0
         self.trades = 0
-        self.best_networth = INITIAL_ACCOUNT_BALANCE
-        if len(previous_state) > 0:
-            self.best_networth = self.previous_state[0]+ \
-                sum(np.array(self.previous_state[1:(STOCK_DIM+1)])*np.array(self.previous_state[(STOCK_DIM+1):(STOCK_DIM*2+1)]))
+
+        self.prev_best_networth = best_networth
+        self.prev_last_price_bought = last_price_bought
+
+        self.best_networth = best_networth
+        self.last_price_bought = last_price_bought
         # memorize all the total balance change
         self.asset_memory = [INITIAL_ACCOUNT_BALANCE]
         self.rewards_memory = []
@@ -172,8 +174,8 @@ class StockEnvTrade(gym.Env):
             sum(np.array(self.state[1:(STOCK_DIM+1)])*np.array(self.state[(STOCK_DIM+1):(STOCK_DIM*2+1)]))
             #print("begin_total_asset:{}".format(begin_total_asset))
             
-            if self.turbulence>=self.turbulence_threshold or self.decide_cut_loss(begin_total_asset):
-                actions=np.array([-HMAX_NORMALIZE]*STOCK_DIM)
+            # if self.turbulence>=self.turbulence_threshold or self.decide_cut_loss(begin_total_asset):
+            #     actions=np.array([-HMAX_NORMALIZE]*STOCK_DIM)
 
             argsort_actions = np.argsort(actions)
             
@@ -184,12 +186,17 @@ class StockEnvTrade(gym.Env):
             prev_stock_price = np.array(self.state[1:(STOCK_DIM + 1)])
 
             for index in sell_index:
+                # cut loss base on last price
+                if self.last_price_bought[index] * self.cut_loss_threshold > self.state[1 + index]:
+                    self._sell_stock(index, -HMAX_NORMALIZE)
                 # print('take sell action'.format(actions[index]))
-                self._sell_stock(index, actions[index])
+                else: self._sell_stock(index, actions[index])
 
             for index in buy_index:
-                # print('take buy action: {}'.format(actions[index]))
-                self._buy_stock(index, actions[index])
+                if self.last_price_bought[index] >= self.state[1 + index]:
+                    # print('take buy action: {}'.format(actions[index]))
+                    self._buy_stock(index, actions[index])
+                    self.last_price_bought[index] = self.state[1 + index]
 
             self.day += 1
             self.data = self.df.loc[self.day,:]         
@@ -238,6 +245,8 @@ class StockEnvTrade(gym.Env):
             self.cost = 0
             self.trades = 0
             self.terminal = False 
+            self.best_networth = self.prev_best_networth
+            self.last_price_bought = self.prev_last_price_bought
             #self.iteration=self.iteration
             self.rewards_memory = []
             #initiate state
@@ -277,7 +286,7 @@ class StockEnvTrade(gym.Env):
         return self.state
     
     def render(self, mode='human',close=False):
-        return self.state
+        return self.state, self.last_price_bought, self.best_networth
     
 
     def _seed(self, seed=None):

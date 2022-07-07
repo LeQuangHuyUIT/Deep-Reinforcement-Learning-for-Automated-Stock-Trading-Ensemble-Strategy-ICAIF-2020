@@ -153,7 +153,9 @@ def DRL_prediction(df,
                    unique_trade_date,
                    rebalance_window,
                    turbulence_threshold,
-                   initial):
+                   initial,
+                   best_networth, 
+                   last_price_bought):
     ### make a prediction based on trained model###
 
     ## trading env
@@ -163,7 +165,9 @@ def DRL_prediction(df,
                                                    initial=initial,
                                                    previous_state=last_state,
                                                    model_name=name,
-                                                   iteration=iter_num)])
+                                                   iteration=iter_num,
+                                                   best_networth= best_networth,
+                                                   last_price_bought= last_price_bought)])
     obs_trade = env_trade.reset()
 
     for i in range(len(trade_data.index.unique())):
@@ -171,11 +175,11 @@ def DRL_prediction(df,
         obs_trade, rewards, dones, info = env_trade.step(action)
         if i == (len(trade_data.index.unique()) - 2):
             # print(env_test.render())
-            last_state = env_trade.render()
+            last_state, last_price_bought, best_networth = env_trade.render()
 
     df_last_state = pd.DataFrame({'last_state': last_state})
     df_last_state.to_csv('results/last_state_{}_{}.csv'.format(name, i), index=False)
-    return last_state
+    return last_state, last_price_bought, best_networth
 
 
 def DRL_validation(model, test_data, test_env, test_obs) -> None:
@@ -208,6 +212,8 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
     start_validation_list = []
     end_validation_list = []
     model_use = []
+    last_price_bought = [-1] * 12
+    best_networth = 1000000
 
     # based on the analysis of the in-sample data
     #turbulence_threshold = 140
@@ -263,7 +269,7 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         ## validation env
         validation = data_split(df, start=unique_trade_date[i - rebalance_window - validation_window],
                                 end=unique_trade_date[i - rebalance_window])
-        # turbulence_threshold = 1e9 # get rid of turbulence
+        turbulence_threshold = 1e9 # get rid of turbulence
         ############## Environment Setup ends ##############
 
         ############## Training and Validation starts ##############
@@ -343,12 +349,14 @@ def run_ensemble_strategy(df, unique_trade_date, rebalance_window, validation_wi
         ############## Trading starts ##############
         print("======Trading from: ", unique_trade_date[i - rebalance_window], "to ", unique_trade_date[i])
         #print("Used Model: ", model_ensemble)
-        last_state_ensemble = DRL_prediction(df=df, model=model_ensemble, name="ensemble",
+        last_state_ensemble, last_price_bought, best_networth  = DRL_prediction(df=df, model=model_ensemble, name="ensemble",
                                              last_state=last_state_ensemble, iter_num=i,
                                              unique_trade_date=unique_trade_date,
                                              rebalance_window=rebalance_window,
                                              turbulence_threshold=turbulence_threshold,
-                                             initial=initial)
+                                             initial=initial,
+                                             best_networth= best_networth,
+                                             last_price_bought= last_price_bought)
         # print("============Trading Done============")
         ############## Trading ends ##############
 
